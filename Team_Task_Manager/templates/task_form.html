@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Task{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+
+        <div class="card shadow-lg border-0">
+
+            <!-- 🔹 HEADER -->
+            <div class="card-header text-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-list-check me-2"></i>
+                    {{ "Edit Task" if task else "Create Task" }}
+                </h4>
+            </div>
+
+            <!-- 🔹 BODY -->
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <!-- ✅ TITLE -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Title</label>
+                        <input type="text"
+                               name="title"
+                               class="form-control"
+                               placeholder="Enter task title"
+                               value="{{ task.title if task else '' }}"
+                               required>
+                    </div>
+
+                    <!-- ✅ DESCRIPTION -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea name="description"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Enter task details"
+                                  required>{{ task.description if task else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+
+                        <!-- ✅ STATUS -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select">
+                                {% for status in statuses %}
+                                    <option value="{{ status }}"
+                                        {% if task and task.status == status %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- ✅ DUE DATE -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">Due Date</label>
+                            <input type="date"
+                                   name="due_date"
+                                   class="form-control"
+                                   value="{{ task.due_date if task and task.due_date else '' }}">
+                        </div>
+
+                        <!-- 🔴 ADMIN ONLY: ASSIGN USER -->
+                        {% if session.get('role') == 'Admin' %}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold">Assigned User</label>
+                            <select name="assigned_to" class="form-select" required>
+
+                                {% if users %}
+                                    <option value="">Select user</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}"
+                                            {% if task and task.assigned_to == user.id %}selected{% endif %}>
+                                            {{ user.name }} ({{ user.role }})
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option disabled>No users available</option>
+                                {% endif %}
+
+                            </select>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- 🔴 ADMIN ONLY: PROJECT -->
+                    {% if session.get('role') == 'Admin' %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Project</label>
+
+                        <select name="project_id" class="form-select" required>
+
+                            {% if projects %}
+                                <option value="">Select project</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}"
+                                        {% if task and task.project_id == project.id %}selected{% endif %}>
+                                        {{ project.name }}
+                                    </option>
+                                {% endfor %}
+                            {% else %}
+                                <option disabled>No projects available</option>
+                            {% endif %}
+
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <!-- ✅ BUTTONS -->
+                    <div class="d-flex justify-content-between">
+
+                        <a href="{{ url_for('web.tasks') }}"
+                           class="btn btn-outline-secondary rounded-pill px-4">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary rounded-pill px-4">
+                            Save Task
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

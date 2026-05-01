@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- 🔹 HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0">Dashboard</h2>
+
+    {% if session.get('role') == 'Admin' %}
+        <span class="badge bg-danger rounded-pill px-3 py-2">Admin Panel</span>
+    {% else %}
+        <span class="badge bg-primary rounded-pill px-3 py-2">Member Panel</span>
+    {% endif %}
+</div>
+
+<!-- 🔹 STATS -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm stat-card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Total Tasks</h6>
+                <div class="stat-value">{{ total_tasks }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm stat-card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Completed Tasks</h6>
+                <div class="stat-value">{{ completed_tasks }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm stat-card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Overdue Tasks</h6>
+                <div class="stat-value text-danger">{{ overdue_tasks }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 🔹 PROGRESS -->
+<div class="row g-3 mb-4">
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i> Task Status Breakdown
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                {% set total = total_tasks if total_tasks > 0 else 1 %}
+
+                <!-- Pending -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Pending</span>
+                        <strong>{{ pending_tasks }}</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning"
+                             style="width: {{ ((pending_tasks / total) * 100) | round(0) }}%">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In Progress -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>In Progress</span>
+                        <strong>{{ in_progress_tasks }}</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info"
+                             style="width: {{ ((in_progress_tasks / total) * 100) | round(0) }}%">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Completed</span>
+                        <strong>{{ completed_tasks }}</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success"
+                             style="width: {{ ((completed_tasks / total) * 100) | round(0) }}%">
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <span class="fw-semibold">Overall Completion</span>
+                    <span class="badge bg-success">{{ completion_percentage }}%</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 OVERDUE -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100 border-danger">
+
+            <div class="card-header">
+                <h5 class="mb-0 text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Overdue Tasks
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                {% if overdue_list %}
+                    {% for task in overdue_list %}
+                        <div class="mb-3">
+                            <div class="fw-semibold">{{ task.title }}</div>
+                            <small class="text-muted">
+                                {{ task.project_name }} |
+                                Due: {{ task.due_date if task.due_date else 'N/A' }}
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-success mb-0">
+                        No overdue tasks 🎉
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 🔹 TASK TABLE -->
+<div class="card shadow-sm">
+
+    <div class="card-header">
+        <h5 class="mb-0">Recent Tasks</h5>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th>Project</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+
+                    <td>
+                        <span class="badge 
+                            {% if task.status == 'Pending' %}bg-warning
+                            {% elif task.status == 'In Progress' %}bg-info
+                            {% else %}bg-success{% endif %}">
+                            {{ task.status }}
+                        </span>
+                    </td>
+
+                    <td>{{ task.due_date if task.due_date else 'N/A' }}</td>
+                    <td>{{ task.project_name }}</td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No tasks found.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}
