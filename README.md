@@ -25,7 +25,7 @@ Admins can manage projects, assign tasks, and monitor team performance, while us
 * 🐍 Backend: Flask (Python)
 * 🎨 Frontend: HTML, CSS, Bootstrap
 * 🗄️ Database: SQLite
-* ☁️ Deployment: Railway
+
 
 ---
 
